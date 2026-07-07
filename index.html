@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CapeQuest — The Mother City in Your Pocket</title>
+  <meta name="description" content="CapeQuest is the Cape Town travel app: hidden gems, AI itineraries, bookable experiences and the best of the Mother City under R200." />
+  <meta property="og:title" content="CapeQuest — The Mother City in Your Pocket" />
+  <meta property="og:description" content="Discover hidden gems, build AI itineraries and book real Cape Town experiences." />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1200&q=80" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>" />
+  <style>
+    /* ── CapeQuest brand tokens (from the app's ThemeContext) ── */
+    :root {
+      --bg: #07111F;
+      --surface: #0D1E35;
+      --surface-alt: #0A1830;
+      --border: #1E3A5F;
+      --text: #D0E8FF;
+      --text-sub: #5A7A9A;
+      --text-muted: #3A6080;
+      --accent: #00C896;
+      --accent-bg: #0D3020;
+      --accent-text: #07111F;
+      --headline: #f5e6c8;
+      --tagline: #1a7fa8;
+      --danger: #FF6B6B;
+      --display: "Archivo Black", sans-serif;
+      --body: "Space Grotesk", sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--accent); color: var(--accent-text); }
+
+    /* Film grain overlay — ApeChain-style texture */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 2rem;
+      background: rgba(7, 17, 31, 0.82);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--display);
+      font-size: 1.25rem;
+      color: var(--headline);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+    .logo .gem { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a {
+      color: var(--text-sub);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .btn {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--accent-text);
+      font-family: var(--body);
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.8rem 1.8rem;
+      border-radius: 999px;
+      border: 2px solid var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(.2,1.6,.4,1), background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 10px 34px rgba(0, 200, 150, 0.35);
+    }
+    .btn.ghost { background: transparent; color: var(--accent); }
+    .btn.ghost:hover { background: var(--accent); color: var(--accent-text); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 7rem 2rem 0;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(7,17,31,0.92) 0%, rgba(7,17,31,0.45) 45%, rgba(7,17,31,0.96) 100%),
+        url("https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=2000&q=80") center 35% / cover no-repeat;
+    }
+    .hero-inner { position: relative; max-width: 1300px; margin: 0 auto; width: 100%; }
+    .hero .kicker {
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.35em;
+      font-size: clamp(0.75rem, 1.4vw, 1rem);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .hero .kicker::before {
+      content: "";
+      width: 3rem; height: 2px;
+      background: var(--accent);
+      display: inline-block;
+    }
+    .hero h1 {
+      font-family: var(--display);
+      font-size: clamp(3.4rem, 12.5vw, 11.5rem);
+      line-height: 0.92;
+      color: var(--headline);
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+    .hero h1 .stroke {
+      color: transparent;
+      -webkit-text-stroke: 2px var(--accent);
+    }
+    .hero .sub {
+      max-width: 34rem;
+      margin: 1.6rem 0 2.2rem;
+      color: var(--text);
+      font-size: clamp(1rem, 1.6vw, 1.25rem);
+      line-height: 1.6;
+    }
+    .hero .cta-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 4rem; }
+
+    /* ── Marquee ── */
+    .marquee {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 1.1rem 0;
+      position: relative;
+    }
+    .marquee-track {
+      display: inline-block;
+      animation: scroll 28s linear infinite;
+    }
+    .marquee span {
+      font-family: var(--display);
+      font-size: clamp(1.1rem, 2.4vw, 1.8rem);
+      text-transform: uppercase;
+      color: var(--headline);
+      margin: 0 1.4rem;
+    }
+    .marquee span.alt { color: transparent; -webkit-text-stroke: 1.5px var(--tagline); }
+    .marquee .dot { color: var(--accent); }
+    @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── Sections ── */
+    section { padding: 7rem 2rem; position: relative; }
+    .wrap { max-width: 1300px; margin: 0 auto; }
+    .section-tag {
+      color: var(--tagline);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      font-size: 0.85rem;
+      margin-bottom: 0.9rem;
+    }
+    .section-title {
+      font-family: var(--display);
+      font-size: clamp(2.2rem, 5.5vw, 4.5rem);
+      color: var(--headline);
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 3.5rem;
+    }
+    .section-title em { font-style: normal; color: var(--accent); }
+
+    /* ── Features grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.4rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 2.2rem;
+      transition: transform 0.3s cubic-bezier(.2,1.4,.4,1), border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover {
+      transform: translateY(-8px) rotate(-0.5deg);
+      border-color: var(--accent);
+      box-shadow: 0 24px 60px rgba(0, 200, 150, 0.14);
+    }
+    .card .icon {
+      width: 3.4rem; height: 3.4rem;
+      border-radius: 14px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.4rem;
+    }
+    .card h3 {
+      font-family: var(--display);
+      color: var(--headline);
+      font-size: 1.25rem;
+      text-transform: uppercase;
+      margin-bottom: 0.7rem;
+    }
+    .card p { color: var(--text-sub); line-height: 1.65; font-size: 0.98rem; }
+    .card .badge {
+      position: absolute;
+      top: 1.4rem; right: 1.4rem;
+      background: var(--accent);
+      color: var(--accent-text);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+    }
+
+    /* ── Gallery / Spotlight ── */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.4rem;
+    }
+    .shot {
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      aspect-ratio: 4 / 5;
+      cursor: pointer;
+    }
+    .shot img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(.2,1,.3,1), filter 0.6s;
+      filter: saturate(0.92);
+    }
+    .shot:hover img { transform: scale(1.07); filter: saturate(1.15); }
+    .shot .label {
+      position: absolute;
+      left: 1.2rem; right: 1.2rem; bottom: 1.2rem;
+      background: rgba(7, 17, 31, 0.78);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.9rem 1.2rem;
+      transition: border-color 0.3s;
+    }
+    .shot:hover .label { border-color: var(--accent); }
+    .shot .label .place {
+      font-family: var(--display);
+      color: var(--headline);
+      text-transform: uppercase;
+      font-size: 1rem;
+    }
+    .shot .label .meta {
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 0.2rem;
+    }
+    .shot.wide { aspect-ratio: 16 / 10; grid-column: span 2; }
+    @media (max-width: 760px) { .shot.wide { grid-column: span 1; aspect-ratio: 4/5; } }
+
+    /* ── App / phone mockup ── */
+    .app-section .wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    @media (max-width: 900px) { .app-section .wrap { grid-template-columns: 1fr; } }
+    .phone {
+      width: min(330px, 80vw);
+      margin: 0 auto;
+      background: var(--surface);
+      border: 3px solid var(--border);
+      border-radius: 44px;
+      padding: 1rem;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.55), 0 0 80px rgba(0, 200, 150, 0.08);
+      transform: rotate(2.5deg);
+      transition: transform 0.5s cubic-bezier(.2,1.4,.4,1);
+    }
+    .phone:hover { transform: rotate(0deg) scale(1.02); }
+    .screen {
+      background: var(--bg);
+      border-radius: 32px;
+      padding: 1.3rem 1.1rem;
+      min-height: 560px;
+    }
+    .screen .s-tag { color: var(--tagline); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; }
+    .screen .s-title { font-family: var(--display); color: var(--headline); font-size: 1.5rem; margin: 0.15rem 0 1rem; }
+    .widget {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 0.8rem;
+    }
+    .widget .row { display: flex; justify-content: space-between; align-items: center; }
+    .widget .temp { font-family: var(--display); color: var(--headline); font-size: 1.6rem; }
+    .widget small { color: var(--text-sub); font-size: 0.72rem; }
+    .chips { display: flex; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+    .chip {
+      font-size: 0.68rem; font-weight: 600;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+    }
+    .chip.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .mini-card {
+      display: flex; gap: 0.7rem; align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.7rem 0.8rem;
+      margin-bottom: 0.6rem;
+    }
+    .mini-card .emoji { font-size: 1.3rem; }
+    .mini-card .n { color: var(--text); font-size: 0.8rem; font-weight: 600; }
+    .mini-card .c { color: var(--accent); font-size: 0.68rem; font-weight: 700; }
+    .ai-banner {
+      background: linear-gradient(135deg, var(--accent-bg), var(--surface));
+      border: 1px solid var(--accent);
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .app-copy h2 { margin-bottom: 1.4rem; }
+    .app-copy .feature-line {
+      display: flex; gap: 1rem; align-items: flex-start;
+      padding: 1.1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .app-copy .feature-line .tick { color: var(--accent); font-weight: 700; font-size: 1.1rem; }
+    .app-copy .feature-line b { color: var(--text); display: block; margin-bottom: 0.2rem; }
+    .app-copy .feature-line span { color: var(--text-sub); font-size: 0.95rem; }
+
+    /* ── Stats ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.4rem;
+      text-align: center;
+    }
+    .stat {
+      padding: 2.5rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--surface);
+    }
+    .stat .num {
+      font-family: var(--display);
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      color: var(--accent);
+    }
+    .stat .lbl {
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-top: 0.4rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 6rem 2rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    footer .giant {
+      font-family: var(--display);
+      font-size: clamp(2.6rem, 9.5vw, 8.5rem);
+      text-transform: uppercase;
+      color: var(--headline);
+      line-height: 0.95;
+      margin-bottom: 1rem;
+    }
+    footer .giant .wave { display: inline-block; animation: wave 2.2s ease-in-out infinite; transform-origin: 70% 70%; }
+    @keyframes wave {
+      0%, 55%, 100% { transform: rotate(0deg); }
+      10% { transform: rotate(16deg); } 20% { transform: rotate(-8deg); }
+      30% { transform: rotate(14deg); } 40% { transform: rotate(-4deg); }
+    }
+    footer .sub { color: var(--text-sub); margin-bottom: 2.4rem; font-size: 1.05rem; }
+    footer .cta-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 5rem; }
+    footer .fine {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1.6rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    footer .fine a { color: var(--text-sub); text-decoration: none; }
+    footer .fine a:hover { color: var(--accent); }
+
+    /* ── Scroll reveal ── */
+    .reveal { opacity: 0; transform: translateY(36px); transition: opacity 0.8s ease, transform 0.8s cubic-bezier(.2,1,.3,1); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (max-width: 700px) {
+      .nav-links a:not(.btn) { display: none; }
+      section { padding: 4.5rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="logo" href="#top"><span class="gem">◆</span> CAPEQUEST</a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#spotlight">Spotlight</a>
+      <a href="#app">The App</a>
+      <a class="btn" href="#download">Download</a>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <header class="hero" id="top">
+    <div class="hero-bg"></div>
+    <div class="hero-inner">
+      <p class="kicker">The Mother City in your pocket</p>
+      <h1>Cape<span class="stroke">Quest</span></h1>
+      <p class="sub">
+        Hidden gems locals actually love. AI itineraries in seconds. Real, bookable
+        experiences — and the best of Cape Town under R200. One app for the whole adventure.
+      </p>
+      <div class="cta-row">
+        <a class="btn" href="#download">Get the app</a>
+        <a class="btn ghost" href="#spotlight">Explore Cape Town ↓</a>
+      </div>
+    </div>
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track" id="marquee1"></div>
+    </div>
+  </header>
+
+  <!-- ── FEATURES ── -->
+  <section id="features">
+    <div class="wrap">
+      <p class="section-tag reveal">Why CapeQuest</p>
+      <h2 class="section-title reveal">Built for the <em>quest</em>,<br />not the queue</h2>
+      <div class="grid">
+        <div class="card reveal">
+          <div class="icon">◆</div>
+          <h3>Hidden Gems</h3>
+          <p>Save the spots locals actually rate — from secret tidal pools to hole-in-the-wall gatsby joints. Your gem collection travels with you.</p>
+        </div>
+        <div class="card reveal">
+          <div class="icon">✦</div><span class="badge">AI</span>
+          <h3>AI Itineraries</h3>
+          <p>Tell CapeQuest your vibe and budget. Get a full day plan for the Mother City in seconds — powered by Claude.</p>
+        </div>
+        <div class="card reveal">
+          <div class="icon">◎</div>
+          <h3>Live Map</h3>
+          <p>Every gem, beach and braai spot pinned on an interactive map that matches your theme — and pings you when you're 500m from greatness.</p>
+        </div>
+        <div class="card reveal">
+          <div class="icon">R</div><span class="badge">Under R200</span>
+          <h3>Budget Explorer</h3>
+          <p>The best of Cape Town for less than a movie ticket. Free hikes, cheap eats and R200-and-under adventures, curated daily.</p>
+        </div>
+        <div class="card reveal">
+          <div class="icon">➤</div>
+          <h3>Book Experiences</h3>
+          <p>Paragliding off Signal Hill, sunset kayaks, wine tram tickets — book and pay securely in-app with PayFast.</p>
+        </div>
+        <div class="card reveal">
+          <div class="icon">❋</div>
+          <h3>Social Hub</h3>
+          <p>Share your finds, tag the location, and see where the city is heading this weekend. Community-first, tourist-trap-free.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SPOTLIGHT GALLERY ── -->
+  <section id="spotlight" style="background: var(--surface-alt);">
+    <div class="wrap">
+      <p class="section-tag reveal">Spotlight</p>
+      <h2 class="section-title reveal">One city.<br /><em>Endless side quests.</em></h2>
+      <div class="gallery">
+        <div class="shot wide reveal">
+          <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1400&q=80" alt="Aerial view of Cape Town with Table Mountain and the stadium" loading="lazy" />
+          <div class="label"><div class="place">Table Mountain</div><div class="meta">◆ The classic quest · Cableway or hike</div></div>
+        </div>
+        <div class="shot reveal">
+          <img src="https://images.unsplash.com/photo-1576485375217-d6a95e34d043?w=900&q=80" alt="Camps Bay beach with the Twelve Apostles mountains at golden hour" loading="lazy" />
+          <div class="label"><div class="place">Camps Bay</div><div class="meta">◆ Sunset gold · Free</div></div>
+        </div>
+        <div class="shot reveal">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Bo-Kaap_colourful_houses_%2830114819980%29.jpg/960px-Bo-Kaap_colourful_houses_%2830114819980%29.jpg" alt="The colourful houses of Bo-Kaap, Cape Town" loading="lazy" />
+          <div class="label"><div class="place">Bo-Kaap</div><div class="meta">◆ Colour + koesisters · Under R200</div></div>
+        </div>
+        <div class="shot reveal">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Simon%E2%80%99s_Town_%28ZA%29%2C_Boulders_Beach%2C_Penguin_Colony_--_2024_--_3401.jpg/960px-Simon%E2%80%99s_Town_%28ZA%29%2C_Boulders_Beach%2C_Penguin_Colony_--_2024_--_3401.jpg" alt="African penguins on the rocks at Boulders Beach, Simon's Town" loading="lazy" />
+          <div class="label"><div class="place">Boulders Beach</div><div class="meta">◆ Penguin colony · Bookable</div></div>
+        </div>
+        <div class="shot reveal">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Lion%27s_Head_at_Dusk_%28Unsplash%29.jpg/960px-Lion%27s_Head_at_Dusk_%28Unsplash%29.jpg" alt="Lion's Head and the Cape Town city bowl at dusk" loading="lazy" />
+          <div class="label"><div class="place">Lion's Head</div><div class="meta">◆ Full-moon hike · Free</div></div>
+        </div>
+        <div class="shot wide reveal">
+          <img src="https://images.unsplash.com/photo-1563656157432-67560011e209?w=1400&q=80" alt="Table Mountain across the bay at sunset from Bloubergstrand" loading="lazy" />
+          <div class="label"><div class="place">Bloubergstrand</div><div class="meta">◆ The postcard view · Kitesurf capital</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── THE APP ── -->
+  <section id="app" class="app-section">
+    <div class="wrap">
+      <div class="phone reveal" aria-hidden="true">
+        <div class="screen">
+          <div class="s-tag">Good morning</div>
+          <div class="s-title">Explore Cape Town</div>
+          <div class="widget">
+            <div class="row">
+              <div><small>CAPE TOWN · CLEAR SKIES</small><div class="temp">24°</div></div>
+              <div style="font-size:1.8rem">☀️</div>
+            </div>
+          </div>
+          <div class="chips">
+            <span class="chip on">All</span><span class="chip">Nature</span><span class="chip">Food</span>
+            <span class="chip">Beaches</span><span class="chip on">Under R200</span>
+          </div>
+          <div class="mini-card"><span class="emoji">⛰️</span><div><div class="n">Platteklip Gorge Hike</div><div class="c">FREE · HIDDEN GEM</div></div></div>
+          <div class="mini-card"><span class="emoji">🐧</span><div><div class="n">Boulders Beach Penguins</div><div class="c">R190 · BOOKABLE</div></div></div>
+          <div class="mini-card"><span class="emoji">🌈</span><div><div class="n">Bo-Kaap Walking Tour</div><div class="c">R150 · CULTURE</div></div></div>
+          <div class="ai-banner">✦ Ask AI to plan your perfect day →</div>
+        </div>
+      </div>
+      <div class="app-copy">
+        <p class="section-tag reveal">The App</p>
+        <h2 class="section-title reveal">Your pocket<br /><em>tour guide</em></h2>
+        <div class="feature-line reveal"><span class="tick">◆</span><div><b>Dark & light themes</b><span>Navy nights, bright beach days — the app matches your mood.</span></div></div>
+        <div class="feature-line reveal"><span class="tick">◆</span><div><b>Works on the go</b><span>Location-aware nudges when you're near a saved gem.</span></div></div>
+        <div class="feature-line reveal"><span class="tick">◆</span><div><b>Real bookings, real payments</b><span>Secure PayFast checkout and instant email confirmations.</span></div></div>
+        <div class="feature-line reveal"><span class="tick">◆</span><div><b>Made in Cape Town</b><span>Curated by people who argue about the city's best gatsby.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STATS ── -->
+  <section style="padding-top: 0;">
+    <div class="wrap">
+      <div class="stats">
+        <div class="stat reveal"><div class="num" data-count="100">0</div><div class="lbl">Curated places</div></div>
+        <div class="stat reveal"><div class="num" data-count="40">0</div><div class="lbl">Under-R200 quests</div></div>
+        <div class="stat reveal"><div class="num" data-count="6">0</div><div class="lbl">Bookable experiences</div></div>
+        <div class="stat reveal"><div class="num" data-count="1" data-suffix="">0</div><div class="lbl">Mother City</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer id="download">
+    <div class="giant reveal">See you in<br />Cape Town <span class="wave">👋</span></div>
+    <p class="sub reveal">Free to download. Priceless to explore.</p>
+    <div class="cta-row reveal">
+      <a class="btn" href="#top">📱 App Store</a>
+      <a class="btn" href="#top">🤖 Google Play</a>
+    </div>
+    <div class="marquee" aria-hidden="true" style="border-radius: 18px; margin-bottom: 3rem;">
+      <div class="marquee-track" id="marquee2"></div>
+    </div>
+    <div class="fine">
+      <span>© 2026 CapeQuest. Made with ◆ in the Mother City.</span>
+      <span>
+        <a href="https://unsplash.com" target="_blank" rel="noopener">Photos: Unsplash</a> ·
+        <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a>
+      </span>
+    </div>
+  </footer>
+
+  <script>
+    // Marquee content — duplicated once so the 50% translate loops seamlessly
+    const places = ["Table Mountain", "Bo-Kaap", "Camps Bay", "Boulders Beach", "Lion's Head", "V&A Waterfront", "Kirstenbosch", "Muizenberg", "Chapman's Peak", "Signal Hill"];
+    const trackHTML = places.map((p, i) =>
+      `<span class="${i % 2 ? "alt" : ""}">${p}</span><span class="dot">◆</span>`
+    ).join("");
+    for (const id of ["marquee1", "marquee2"]) {
+      document.getElementById(id).innerHTML = trackHTML + trackHTML;
+    }
+
+    // Scroll reveal
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      }
+    }, { threshold: 0.15 });
+    document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+    // Animated counters
+    const counterIO = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        counterIO.unobserve(e.target);
+        const el = e.target;
+        const target = +el.dataset.count;
+        const start = performance.now();
+        const dur = 1400;
+        (function tick(now) {
+          const t = Math.min((now - start) / dur, 1);
+          const suffix = el.dataset.suffix ?? "+";
+          el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3))) + suffix;
+          if (t < 1) requestAnimationFrame(tick);
+        })(start);
+      }
+    }, { threshold: 0.5 });
+    document.querySelectorAll(".num").forEach((el) => counterIO.observe(el));
+  </script>
+</body>
+</html>
