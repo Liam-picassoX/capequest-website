@@ -193,7 +193,7 @@
       position: absolute;
       inset: 0;
       z-index: 1;
-      clip-path: inset(34% 30% 26% 30% round 26px);
+      clip-path: inset(34% 30% 26% 30%);
       will-change: clip-path;
     }
     .zoom-media img {
@@ -993,6 +993,11 @@
     } else {
       gsap.registerPlugin(ScrollTrigger);
 
+      // Always start at the top: restored mid-pin scroll positions look broken,
+      // and the preloader is designed to hand off to the hero.
+      history.scrollRestoration = "manual";
+      window.scrollTo(0, 0);
+
       /* ── Lenis smooth scroll, driven by GSAP's ticker ── */
       const lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1.05 });
       lenis.on("scroll", ScrollTrigger.update);
@@ -1050,7 +1055,7 @@
       gsap.timeline({
         scrollTrigger: { trigger: ".hero", start: "top top", end: "+=130%", scrub: true, pin: true },
       })
-        .to(".zoom-media", { clipPath: "inset(0% 0% 0% 0% round 0px)", ease: "none" }, 0)
+        .fromTo(".zoom-media", { clipPath: "inset(34% 30% 26%)" }, { clipPath: "inset(0% 0% 0%)", ease: "none" }, 0)
         .to(".zoom-media img", { scale: 1, ease: "none" }, 0)
         .to(".zoom-media .tint", { opacity: 1, ease: "none" }, 0)
         .to("#ht-cape", { xPercent: -16, ease: "none" }, 0)
