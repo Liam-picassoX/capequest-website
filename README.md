@@ -23,6 +23,19 @@ the best of Cape Town under R200.
 
 - **Type:** Archivo Black (display) + Space Grotesk (body), via Google Fonts.
 
+## Motion & interaction
+
+Built with [GSAP](https://gsap.com) (ScrollTrigger) + [Lenis](https://lenis.darkroom.engineering)
+smooth scroll, all loaded from CDN:
+
+- Preloader with counter and staggered letter reveal
+- Hero image window that zooms to fullscreen on scroll (pinned, scrubbed clip-path)
+- Pinned horizontal-scroll photo gallery with per-card parallax
+- Feature rows with green flood hover + cursor-following image previews
+- Custom cursor, magnetic buttons, masked line-reveal titles, scroll-reactive nav
+- Falls back gracefully: `prefers-reduced-motion`, hidden tabs, or a blocked CDN
+  all get instant static content.
+
 ## Photography
 
 All imagery is real Cape Town, hotlinked from free sources:

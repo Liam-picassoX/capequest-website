@@ -27,13 +27,14 @@
       --accent-text: #07111F;
       --headline: #f5e6c8;
       --tagline: #1a7fa8;
-      --danger: #FF6B6B;
       --display: "Archivo Black", sans-serif;
       --body: "Space Grotesk", sans-serif;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
 
     body {
       background: var(--bg);
@@ -45,299 +46,548 @@
 
     ::selection { background: var(--accent); color: var(--accent-text); }
 
-    /* Film grain overlay — ApeChain-style texture */
+    /* Film grain */
     body::after {
       content: "";
       position: fixed;
       inset: 0;
       pointer-events: none;
-      z-index: 999;
-      opacity: 0.05;
+      z-index: 2000;
+      opacity: 0.045;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
+
+    /* ── Preloader ── */
+    #loader {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    #loader .word {
+      font-family: var(--display);
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      color: var(--headline);
+      letter-spacing: 0.04em;
+      display: flex;
+      overflow: hidden;
+    }
+    #loader .word span { display: inline-block; }
+    #loader .word .gem { color: var(--accent); }
+    #loader .count {
+      font-family: var(--display);
+      color: var(--accent);
+      font-size: clamp(1rem, 2.4vw, 1.6rem);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Custom cursor ── */
+    #cursor, #cursor-ring {
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 2500;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    #cursor { width: 10px; height: 10px; background: var(--accent); }
+    #cursor-ring {
+      width: 42px; height: 42px;
+      border: 1.5px solid rgba(0, 200, 150, 0.55);
+      transition: width 0.3s, height 0.3s, background 0.3s, border-color 0.3s;
+    }
+    body.cursor-grow #cursor-ring {
+      width: 78px; height: 78px;
+      background: rgba(0, 200, 150, 0.12);
+      border-color: var(--accent);
+    }
+    @media (hover: none) { #cursor, #cursor-ring { display: none; } }
 
     /* ── Nav ── */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
-      z-index: 100;
+      z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1.1rem 2rem;
-      background: rgba(7, 17, 31, 0.82);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
+      padding: 1.1rem 2.2rem;
+      background: linear-gradient(180deg, rgba(7,17,31,0.85), rgba(7,17,31,0));
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
     .logo {
       display: flex;
       align-items: center;
       gap: 0.6rem;
       font-family: var(--display);
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       color: var(--headline);
       text-decoration: none;
       letter-spacing: 0.02em;
     }
-    .logo .gem { color: var(--accent); }
+    .logo .gem { color: var(--accent); display: inline-block; animation: spin 7s linear infinite; }
+    @keyframes spin { to { transform: rotateY(360deg); } }
     .nav-links { display: flex; gap: 2rem; align-items: center; }
     .nav-links a {
       color: var(--text-sub);
       text-decoration: none;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.82rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      transition: color 0.2s;
+      letter-spacing: 0.12em;
+      transition: color 0.25s;
     }
     .nav-links a:hover { color: var(--accent); }
+
     .btn {
-      display: inline-block;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
       background: var(--accent);
       color: var(--accent-text);
       font-family: var(--body);
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      padding: 0.8rem 1.8rem;
+      padding: 0.9rem 2rem;
       border-radius: 999px;
       border: 2px solid var(--accent);
       text-decoration: none;
       cursor: pointer;
-      transition: transform 0.2s cubic-bezier(.2,1.6,.4,1), background 0.2s, color 0.2s, box-shadow 0.2s;
+      overflow: hidden;
+      transition: color 0.35s;
     }
-    .btn:hover {
-      transform: translateY(-3px) scale(1.03);
-      box-shadow: 0 10px 34px rgba(0, 200, 150, 0.35);
-    }
-    .btn.ghost { background: transparent; color: var(--accent); }
-    .btn.ghost:hover { background: var(--accent); color: var(--accent-text); }
-
-    /* ── Hero ── */
-    .hero {
-      position: relative;
-      min-height: 100svh;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 7rem 2rem 0;
-    }
-    .hero-bg {
+    .btn i {
       position: absolute;
       inset: 0;
-      background:
-        linear-gradient(180deg, rgba(7,17,31,0.92) 0%, rgba(7,17,31,0.45) 45%, rgba(7,17,31,0.96) 100%),
-        url("https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=2000&q=80") center 35% / cover no-repeat;
+      background: var(--headline);
+      border-radius: inherit;
+      transform: translateY(101%);
+      transition: transform 0.45s cubic-bezier(.6,0,.2,1);
+      z-index: 0;
     }
-    .hero-inner { position: relative; max-width: 1300px; margin: 0 auto; width: 100%; }
-    .hero .kicker {
+    .btn:hover i { transform: translateY(0); }
+    .btn span { position: relative; z-index: 1; }
+    .btn.ghost { background: transparent; color: var(--accent); }
+    .btn.ghost:hover { color: var(--accent-text); }
+    .btn.ghost i { background: var(--accent); }
+    .btn.navy { background: var(--bg); border-color: var(--bg); color: var(--accent); }
+    .btn.navy i { background: var(--headline); }
+    .btn.navy:hover { color: var(--bg); }
+
+    /* ── Hero (pinned zoom scene) ── */
+    .hero {
+      position: relative;
+      height: 100svh;
+      overflow: hidden;
+    }
+    .zoom-media {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      clip-path: inset(34% 30% 26% 30% round 26px);
+      will-change: clip-path;
+    }
+    .zoom-media img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transform: scale(1.15);
+      will-change: transform;
+    }
+    .zoom-media .tint {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(7,17,31,0.55), rgba(7,17,31,0.15) 45%, rgba(7,17,31,0.75));
+      opacity: 0;
+    }
+    .hero-type {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .hero-type h1 {
+      font-family: var(--display);
+      font-size: clamp(4rem, 16.5vw, 15.5rem);
+      line-height: 0.86;
+      text-transform: uppercase;
+      color: var(--headline);
+      text-align: center;
+      letter-spacing: -0.01em;
+      text-shadow: 0 8px 60px rgba(7, 17, 31, 0.45);
+    }
+    .hero-type h1 .row { display: block; overflow: hidden; }
+    .hero-type h1 .row > span { display: inline-block; will-change: transform; }
+    .hero-type h1 .stroke {
+      color: transparent;
+      -webkit-text-stroke: 3px var(--accent);
+    }
+    .hero-kicker, .hero-sub {
+      position: absolute;
+      z-index: 3;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      width: min(90vw, 46rem);
+    }
+    .hero-kicker {
+      top: 14vh;
       color: var(--accent);
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.35em;
-      font-size: clamp(0.75rem, 1.4vw, 1rem);
-      margin-bottom: 1rem;
+      letter-spacing: 0.4em;
+      font-size: clamp(0.7rem, 1.3vw, 0.95rem);
+    }
+    .hero-sub {
+      bottom: 11vh;
+      color: var(--text);
+      font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+      line-height: 1.65;
+      text-wrap: balance;
+    }
+    .scroll-hint {
+      position: absolute;
+      z-index: 3;
+      bottom: 3.2vh;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--text-sub);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
       display: flex;
       align-items: center;
-      gap: 0.8rem;
+      gap: 0.6rem;
     }
-    .hero .kicker::before {
+    .scroll-hint::after {
       content: "";
-      width: 3rem; height: 2px;
-      background: var(--accent);
-      display: inline-block;
+      width: 1px; height: 2.6rem;
+      background: linear-gradient(var(--accent), transparent);
+      animation: drip 1.8s ease-in-out infinite;
     }
-    .hero h1 {
-      font-family: var(--display);
-      font-size: clamp(3.4rem, 12.5vw, 11.5rem);
-      line-height: 0.92;
-      color: var(--headline);
-      text-transform: uppercase;
-      letter-spacing: -0.01em;
-    }
-    .hero h1 .stroke {
-      color: transparent;
-      -webkit-text-stroke: 2px var(--accent);
-    }
-    .hero .sub {
-      max-width: 34rem;
-      margin: 1.6rem 0 2.2rem;
-      color: var(--text);
-      font-size: clamp(1rem, 1.6vw, 1.25rem);
-      line-height: 1.6;
-    }
-    .hero .cta-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 4rem; }
+    @keyframes drip { 0% { transform: scaleY(0); transform-origin: top; } 55% { transform: scaleY(1); transform-origin: top; } 100% { transform: scaleY(0); transform-origin: bottom; } }
 
     /* ── Marquee ── */
     .marquee {
       border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
-      background: var(--surface);
+      background: var(--bg);
       overflow: hidden;
       white-space: nowrap;
-      padding: 1.1rem 0;
+      padding: 1.3rem 0;
       position: relative;
+      z-index: 5;
     }
-    .marquee-track {
-      display: inline-block;
-      animation: scroll 28s linear infinite;
-    }
+    .marquee-track { display: inline-flex; align-items: center; will-change: transform; }
     .marquee span {
       font-family: var(--display);
-      font-size: clamp(1.1rem, 2.4vw, 1.8rem);
+      font-size: clamp(1.2rem, 2.6vw, 2rem);
       text-transform: uppercase;
       color: var(--headline);
-      margin: 0 1.4rem;
+      margin: 0 1.6rem;
     }
     .marquee span.alt { color: transparent; -webkit-text-stroke: 1.5px var(--tagline); }
-    .marquee .dot { color: var(--accent); }
-    @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .marquee .dot { color: var(--accent); font-size: 1.1rem; }
+    .marquee.on-green { border-color: rgba(7,17,31,0.25); background: transparent; }
+    .marquee.on-green span { color: var(--bg); }
+    .marquee.on-green span.alt { color: transparent; -webkit-text-stroke: 1.5px rgba(7,17,31,0.55); }
+    .marquee.on-green .dot { color: var(--headline); }
 
-    /* ── Sections ── */
-    section { padding: 7rem 2rem; position: relative; }
-    .wrap { max-width: 1300px; margin: 0 auto; }
+    /* ── Shared section bits ── */
+    section { position: relative; }
+    .wrap { max-width: 1400px; margin: 0 auto; padding: 0 2.2rem; }
     .section-tag {
       color: var(--tagline);
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.3em;
-      font-size: 0.85rem;
-      margin-bottom: 0.9rem;
+      letter-spacing: 0.32em;
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
     }
+    .section-tag::before { content: "◆"; color: var(--accent); font-size: 0.7rem; }
     .section-title {
       font-family: var(--display);
-      font-size: clamp(2.2rem, 5.5vw, 4.5rem);
+      font-size: clamp(2.4rem, 6.5vw, 5.6rem);
       color: var(--headline);
       text-transform: uppercase;
-      line-height: 1;
-      margin-bottom: 3.5rem;
+      line-height: 0.96;
     }
     .section-title em { font-style: normal; color: var(--accent); }
+    .section-title .row { display: block; overflow: hidden; }
+    .section-title .row > span { display: inline-block; will-change: transform; }
 
-    /* ── Features grid ── */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.4rem;
-    }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 2.2rem;
-      transition: transform 0.3s cubic-bezier(.2,1.4,.4,1), border-color 0.3s, box-shadow 0.3s;
+    /* ── Feature rows (hover flood + cursor image preview) ── */
+    .features { padding: 9rem 0 8rem; }
+    .feat-head { margin-bottom: 4.5rem; }
+    .feat-row {
       position: relative;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      padding: 2.4rem 2.2rem;
+      border-top: 1px solid var(--border);
+      cursor: pointer;
       overflow: hidden;
+      text-decoration: none;
     }
-    .card:hover {
-      transform: translateY(-8px) rotate(-0.5deg);
-      border-color: var(--accent);
-      box-shadow: 0 24px 60px rgba(0, 200, 150, 0.14);
+    .feat-row:last-of-type { border-bottom: 1px solid var(--border); }
+    .feat-row .flood {
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform 0.5s cubic-bezier(.65,0,.15,1);
+      z-index: 0;
     }
-    .card .icon {
-      width: 3.4rem; height: 3.4rem;
-      border-radius: 14px;
+    .feat-row:hover .flood { transform: scaleY(1); }
+    .feat-row > * { position: relative; z-index: 1; }
+    .feat-row .idx {
+      font-family: var(--body);
+      font-weight: 700;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      min-width: 2.6rem;
+      transition: color 0.35s;
+    }
+    .feat-row h3 {
+      font-family: var(--display);
+      font-size: clamp(1.5rem, 4.2vw, 3.4rem);
+      text-transform: uppercase;
+      color: var(--headline);
+      line-height: 1;
+      transition: color 0.35s, transform 0.5s cubic-bezier(.2,1,.3,1);
+      flex: 1;
+    }
+    .feat-row p {
+      max-width: 22rem;
+      color: var(--text-sub);
+      font-size: 0.92rem;
+      line-height: 1.55;
+      transition: color 0.35s;
+    }
+    .feat-row .arrow {
+      font-size: 1.6rem;
+      color: var(--accent);
+      transition: color 0.35s, transform 0.5s cubic-bezier(.2,1,.3,1);
+    }
+    .feat-row:hover .idx, .feat-row:hover p { color: rgba(7,17,31,0.72); }
+    .feat-row:hover h3 { color: var(--bg); transform: translateX(1.4rem); }
+    .feat-row:hover .arrow { color: var(--bg); transform: translateX(0.4rem) rotate(-45deg); }
+    .feat-row .tag-pill {
       background: var(--accent-bg);
       color: var(--accent);
-      display: grid;
-      place-items: center;
-      font-size: 1.5rem;
-      margin-bottom: 1.4rem;
-    }
-    .card h3 {
-      font-family: var(--display);
-      color: var(--headline);
-      font-size: 1.25rem;
-      text-transform: uppercase;
-      margin-bottom: 0.7rem;
-    }
-    .card p { color: var(--text-sub); line-height: 1.65; font-size: 0.98rem; }
-    .card .badge {
-      position: absolute;
-      top: 1.4rem; right: 1.4rem;
-      background: var(--accent);
-      color: var(--accent-text);
-      font-size: 0.7rem;
+      border: 1px solid var(--accent);
+      font-size: 0.68rem;
       font-weight: 700;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 0.3rem 0.8rem;
+      padding: 0.35rem 0.9rem;
       border-radius: 999px;
+      transition: background 0.35s, color 0.35s, border-color 0.35s;
     }
-
-    /* ── Gallery / Spotlight ── */
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 1.4rem;
-    }
-    .shot {
-      position: relative;
-      border-radius: 22px;
+    .feat-row:hover .tag-pill { background: var(--bg); color: var(--accent); border-color: var(--bg); }
+    #feat-preview {
+      position: fixed;
+      z-index: 900;
+      width: 20rem;
+      aspect-ratio: 4 / 3;
+      border-radius: 18px;
       overflow: hidden;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.85);
       border: 1px solid var(--border);
-      aspect-ratio: 4 / 5;
-      cursor: pointer;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      will-change: transform, opacity;
     }
-    .shot img {
+    #feat-preview img {
+      position: absolute;
+      inset: 0;
       width: 100%; height: 100%;
       object-fit: cover;
-      transition: transform 0.6s cubic-bezier(.2,1,.3,1), filter 0.6s;
-      filter: saturate(0.92);
+      opacity: 0;
+      transition: opacity 0.35s;
     }
-    .shot:hover img { transform: scale(1.07); filter: saturate(1.15); }
-    .shot .label {
+    #feat-preview img.show { opacity: 1; }
+    @media (max-width: 860px) {
+      .feat-row { flex-wrap: wrap; gap: 0.8rem 1.4rem; padding: 1.8rem 1.2rem; }
+      .feat-row p { max-width: none; }
+      #feat-preview { display: none; }
+    }
+
+    /* ── Horizontal gallery ── */
+    .hscroll { overflow: hidden; background: var(--surface-alt); }
+    .hscroll .head { padding: 7rem 2.2rem 3.5rem; }
+    .htrack {
+      display: flex;
+      gap: 2.2rem;
+      padding: 0 2.2rem 7rem;
+      width: max-content;
+      will-change: transform;
+      align-items: stretch;
+    }
+    .hcard {
+      position: relative;
+      width: clamp(300px, 38vw, 560px);
+      aspect-ratio: 3.4 / 4;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .hcard .im {
       position: absolute;
-      left: 1.2rem; right: 1.2rem; bottom: 1.2rem;
+      inset: -8% 0;
+    }
+    .hcard img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      will-change: transform;
+      filter: saturate(0.95);
+      transition: filter 0.5s;
+    }
+    .hcard:hover img { filter: saturate(1.2); }
+    .hcard .num {
+      position: absolute;
+      top: 1.3rem; left: 1.3rem;
+      font-family: var(--display);
+      color: var(--headline);
+      background: rgba(7,17,31,0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.8rem;
+      padding: 0.45rem 1rem;
+    }
+    .hcard .label {
+      position: absolute;
+      left: 1.3rem; right: 1.3rem; bottom: 1.3rem;
       background: rgba(7, 17, 31, 0.78);
       backdrop-filter: blur(10px);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 0.9rem 1.2rem;
+      border-radius: 16px;
+      padding: 1rem 1.3rem;
       transition: border-color 0.3s;
     }
-    .shot:hover .label { border-color: var(--accent); }
-    .shot .label .place {
+    .hcard:hover .label { border-color: var(--accent); }
+    .hcard .place {
       font-family: var(--display);
       color: var(--headline);
       text-transform: uppercase;
-      font-size: 1rem;
+      font-size: 1.05rem;
     }
-    .shot .label .meta {
+    .hcard .meta {
       color: var(--accent);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      margin-top: 0.2rem;
+      margin-top: 0.25rem;
     }
-    .shot.wide { aspect-ratio: 16 / 10; grid-column: span 2; }
-    @media (max-width: 760px) { .shot.wide { grid-column: span 1; aspect-ratio: 4/5; } }
+    .hcard.cta-card {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.6rem;
+      background: var(--surface);
+      text-align: center;
+      padding: 2rem;
+    }
+    .hcard.cta-card .big {
+      font-family: var(--display);
+      color: var(--headline);
+      text-transform: uppercase;
+      font-size: clamp(1.5rem, 2.6vw, 2.3rem);
+      line-height: 1;
+    }
+    .hcard.cta-card .big em { font-style: normal; color: var(--accent); }
 
-    /* ── App / phone mockup ── */
-    .app-section .wrap {
+    /* ── Green "Under R200" block ── */
+    .green {
+      background: var(--accent);
+      color: var(--bg);
+      padding: 9rem 0 0;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+    .green .section-tag { color: rgba(7,17,31,0.65); }
+    .green .section-tag::before { color: var(--bg); }
+    .green .section-title { color: var(--bg); }
+    .green .section-title em { color: var(--headline); text-shadow: 0 3px 24px rgba(7,17,31,0.25); }
+    .green .lede {
+      max-width: 36rem;
+      margin: 2rem 0 3rem;
+      color: rgba(7,17,31,0.8);
+      font-size: 1.1rem;
+      line-height: 1.65;
+      font-weight: 500;
+    }
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.2rem;
+      padding-bottom: 5rem;
+    }
+    .ticket {
+      background: rgba(7,17,31,0.92);
+      border-radius: 18px;
+      padding: 1.6rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: transform 0.4s cubic-bezier(.2,1.4,.4,1), box-shadow 0.4s;
+      will-change: transform;
+    }
+    .ticket:hover { transform: translateY(-8px) rotate(-1deg); box-shadow: 0 24px 50px rgba(7,17,31,0.35); }
+    .ticket .price {
+      font-family: var(--display);
+      color: var(--accent);
+      font-size: 1.9rem;
+    }
+    .ticket .what { color: var(--headline); font-weight: 700; font-size: 1rem; }
+    .ticket .how { color: var(--text-sub); font-size: 0.82rem; }
+    .green .marquee { padding: 1.5rem 0; }
+
+    /* ── App section ── */
+    .app-section { padding: 10rem 0; overflow: hidden; }
+    .app-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 4rem;
+      gap: 5rem;
       align-items: center;
     }
-    @media (max-width: 900px) { .app-section .wrap { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .app-grid { grid-template-columns: 1fr; } }
+    .phone-wrap { perspective: 1200px; }
     .phone {
-      width: min(330px, 80vw);
+      width: min(330px, 78vw);
       margin: 0 auto;
       background: var(--surface);
       border: 3px solid var(--border);
-      border-radius: 44px;
+      border-radius: 46px;
       padding: 1rem;
-      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.55), 0 0 80px rgba(0, 200, 150, 0.08);
-      transform: rotate(2.5deg);
-      transition: transform 0.5s cubic-bezier(.2,1.4,.4,1);
+      box-shadow: 0 50px 120px rgba(0, 0, 0, 0.6), 0 0 90px rgba(0, 200, 150, 0.09);
+      will-change: transform;
     }
-    .phone:hover { transform: rotate(0deg) scale(1.02); }
     .screen {
       background: var(--bg);
-      border-radius: 32px;
+      border-radius: 34px;
       padding: 1.3rem 1.1rem;
       min-height: 560px;
     }
@@ -382,17 +632,18 @@
       font-size: 0.78rem;
       font-weight: 700;
     }
-    .app-copy h2 { margin-bottom: 1.4rem; }
-    .app-copy .feature-line {
-      display: flex; gap: 1rem; align-items: flex-start;
-      padding: 1.1rem 0;
+    .app-copy .section-title { margin-bottom: 1rem; }
+    .feature-line {
+      display: flex; gap: 1.1rem; align-items: flex-start;
+      padding: 1.3rem 0;
       border-bottom: 1px solid var(--border);
     }
-    .app-copy .feature-line .tick { color: var(--accent); font-weight: 700; font-size: 1.1rem; }
-    .app-copy .feature-line b { color: var(--text); display: block; margin-bottom: 0.2rem; }
-    .app-copy .feature-line span { color: var(--text-sub); font-size: 0.95rem; }
+    .feature-line .tick { color: var(--accent); font-weight: 700; font-size: 1rem; margin-top: 0.15rem; }
+    .feature-line b { color: var(--text); display: block; margin-bottom: 0.25rem; font-size: 1.02rem; }
+    .feature-line span { color: var(--text-sub); font-size: 0.94rem; line-height: 1.55; }
 
     /* ── Stats ── */
+    .stats-section { padding: 0 0 9rem; }
     .stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -400,15 +651,17 @@
       text-align: center;
     }
     .stat {
-      padding: 2.5rem 1rem;
+      padding: 3rem 1rem;
       border: 1px solid var(--border);
       border-radius: 22px;
       background: var(--surface);
+      will-change: transform;
     }
     .stat .num {
       font-family: var(--display);
-      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      font-size: clamp(2.6rem, 5.4vw, 4rem);
       color: var(--accent);
+      font-variant-numeric: tabular-nums;
     }
     .stat .lbl {
       color: var(--text-sub);
@@ -416,33 +669,35 @@
       letter-spacing: 0.15em;
       font-size: 0.78rem;
       font-weight: 600;
-      margin-top: 0.4rem;
+      margin-top: 0.5rem;
     }
 
     /* ── Footer ── */
     footer {
       border-top: 1px solid var(--border);
-      padding: 6rem 2rem 2rem;
+      padding: 8rem 2.2rem 2rem;
       text-align: center;
       position: relative;
       overflow: hidden;
     }
     footer .giant {
       font-family: var(--display);
-      font-size: clamp(2.6rem, 9.5vw, 8.5rem);
+      font-size: clamp(2.8rem, 10.5vw, 9.5rem);
       text-transform: uppercase;
       color: var(--headline);
       line-height: 0.95;
-      margin-bottom: 1rem;
+      margin-bottom: 1.4rem;
     }
+    footer .giant .row { display: block; overflow: hidden; }
+    footer .giant .row > span { display: inline-block; will-change: transform; }
     footer .giant .wave { display: inline-block; animation: wave 2.2s ease-in-out infinite; transform-origin: 70% 70%; }
     @keyframes wave {
       0%, 55%, 100% { transform: rotate(0deg); }
       10% { transform: rotate(16deg); } 20% { transform: rotate(-8deg); }
       30% { transform: rotate(14deg); } 40% { transform: rotate(-4deg); }
     }
-    footer .sub { color: var(--text-sub); margin-bottom: 2.4rem; font-size: 1.05rem; }
-    footer .cta-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 5rem; }
+    footer .sub { color: var(--text-sub); margin-bottom: 2.6rem; font-size: 1.05rem; }
+    footer .cta-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 5.5rem; }
     footer .fine {
       display: flex;
       justify-content: space-between;
@@ -451,231 +706,507 @@
       color: var(--text-muted);
       font-size: 0.8rem;
       border-top: 1px solid var(--border);
-      padding-top: 1.6rem;
-      max-width: 1300px;
-      margin: 0 auto;
+      padding-top: 1.7rem;
+      max-width: 1400px;
+      margin: 3.5rem auto 0;
     }
     footer .fine a { color: var(--text-sub); text-decoration: none; }
     footer .fine a:hover { color: var(--accent); }
 
-    /* ── Scroll reveal ── */
-    .reveal { opacity: 0; transform: translateY(36px); transition: opacity 0.8s ease, transform 0.8s cubic-bezier(.2,1,.3,1); }
-    .reveal.in { opacity: 1; transform: none; }
-
     @media (max-width: 700px) {
       .nav-links a:not(.btn) { display: none; }
-      section { padding: 4.5rem 1.2rem; }
+      .wrap { padding: 0 1.3rem; }
+      .features { padding: 6rem 0 5rem; }
+      .hscroll .head { padding: 5rem 1.3rem 2.5rem; }
+      .htrack { padding: 0 1.3rem 5rem; gap: 1.2rem; }
+      .green { padding-top: 6rem; }
+      .app-section { padding: 6rem 0; }
     }
   </style>
 </head>
 <body>
 
-  <nav>
-    <a class="logo" href="#top"><span class="gem">◆</span> CAPEQUEST</a>
+  <!-- Preloader -->
+  <div id="loader" aria-hidden="true">
+    <div class="word" id="loader-word"></div>
+    <div class="count" id="loader-count">000</div>
+  </div>
+
+  <!-- Custom cursor -->
+  <div id="cursor" aria-hidden="true"></div>
+  <div id="cursor-ring" aria-hidden="true"></div>
+
+  <nav id="nav">
+    <a class="logo" href="#top" data-cursor><span class="gem">◆</span> CAPEQUEST</a>
     <div class="nav-links">
-      <a href="#features">Features</a>
-      <a href="#spotlight">Spotlight</a>
-      <a href="#app">The App</a>
-      <a class="btn" href="#download">Download</a>
+      <a href="#features" data-cursor>Features</a>
+      <a href="#spotlight" data-cursor>Spotlight</a>
+      <a href="#under-r200" data-cursor>Under R200</a>
+      <a href="#app" data-cursor>The App</a>
+      <a class="btn" href="#download" data-cursor><i></i><span>Download</span></a>
     </div>
   </nav>
 
-  <!-- ── HERO ── -->
-  <header class="hero" id="top">
-    <div class="hero-bg"></div>
-    <div class="hero-inner">
-      <p class="kicker">The Mother City in your pocket</p>
-      <h1>Cape<span class="stroke">Quest</span></h1>
-      <p class="sub">
-        Hidden gems locals actually love. AI itineraries in seconds. Real, bookable
-        experiences — and the best of Cape Town under R200. One app for the whole adventure.
-      </p>
-      <div class="cta-row">
-        <a class="btn" href="#download">Get the app</a>
-        <a class="btn ghost" href="#spotlight">Explore Cape Town ↓</a>
-      </div>
+  <!-- ── HERO: image zooms to fullscreen on scroll ── -->
+  <section class="hero" id="top">
+    <div class="zoom-media">
+      <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=2000&q=80" alt="Aerial view of Cape Town, Table Mountain and the stadium" />
+      <div class="tint"></div>
     </div>
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee-track" id="marquee1"></div>
+    <p class="hero-kicker">The Mother City in your pocket</p>
+    <div class="hero-type">
+      <h1>
+        <span class="row"><span id="ht-cape">Cape</span></span>
+        <span class="row"><span id="ht-quest" class="stroke">Quest</span></span>
+      </h1>
     </div>
-  </header>
+    <p class="hero-sub">Hidden gems locals actually love. AI itineraries in seconds. Real, bookable experiences — and the best of Cape Town under R200.</p>
+    <div class="scroll-hint">Scroll</div>
+  </section>
 
-  <!-- ── FEATURES ── -->
-  <section id="features">
-    <div class="wrap">
-      <p class="section-tag reveal">Why CapeQuest</p>
-      <h2 class="section-title reveal">Built for the <em>quest</em>,<br />not the queue</h2>
-      <div class="grid">
-        <div class="card reveal">
-          <div class="icon">◆</div>
-          <h3>Hidden Gems</h3>
-          <p>Save the spots locals actually rate — from secret tidal pools to hole-in-the-wall gatsby joints. Your gem collection travels with you.</p>
-        </div>
-        <div class="card reveal">
-          <div class="icon">✦</div><span class="badge">AI</span>
-          <h3>AI Itineraries</h3>
-          <p>Tell CapeQuest your vibe and budget. Get a full day plan for the Mother City in seconds — powered by Claude.</p>
-        </div>
-        <div class="card reveal">
-          <div class="icon">◎</div>
-          <h3>Live Map</h3>
-          <p>Every gem, beach and braai spot pinned on an interactive map that matches your theme — and pings you when you're 500m from greatness.</p>
-        </div>
-        <div class="card reveal">
-          <div class="icon">R</div><span class="badge">Under R200</span>
-          <h3>Budget Explorer</h3>
-          <p>The best of Cape Town for less than a movie ticket. Free hikes, cheap eats and R200-and-under adventures, curated daily.</p>
-        </div>
-        <div class="card reveal">
-          <div class="icon">➤</div>
-          <h3>Book Experiences</h3>
-          <p>Paragliding off Signal Hill, sunset kayaks, wine tram tickets — book and pay securely in-app with PayFast.</p>
-        </div>
-        <div class="card reveal">
-          <div class="icon">❋</div>
-          <h3>Social Hub</h3>
-          <p>Share your finds, tag the location, and see where the city is heading this weekend. Community-first, tourist-trap-free.</p>
-        </div>
+  <!-- ── Marquee ── -->
+  <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee1"></div></div>
+
+  <!-- ── FEATURES: rows + cursor-follow preview ── -->
+  <section class="features" id="features">
+    <div class="wrap feat-head">
+      <p class="section-tag">Why CapeQuest</p>
+      <h2 class="section-title">
+        <span class="row"><span>Built for the <em>quest</em>,</span></span>
+        <span class="row"><span>not the queue</span></span>
+      </h2>
+    </div>
+    <div class="feat-list">
+      <a class="feat-row" data-cursor data-img="https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Bo-Kaap_colourful_houses_%2830114819980%29.jpg/960px-Bo-Kaap_colourful_houses_%2830114819980%29.jpg">
+        <div class="flood"></div>
+        <span class="idx">01</span>
+        <h3>Hidden Gems</h3>
+        <p>Save the spots locals actually rate — secret tidal pools, hole-in-the-wall gatsby joints, koesister Sundays.</p>
+        <span class="arrow">→</span>
+      </a>
+      <a class="feat-row" data-cursor data-img="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=900&q=75">
+        <div class="flood"></div>
+        <span class="idx">02</span>
+        <h3>AI Itineraries</h3>
+        <span class="tag-pill">Powered by Claude</span>
+        <p>Tell CapeQuest your vibe and budget. Get a full Mother City day plan in seconds.</p>
+        <span class="arrow">→</span>
+      </a>
+      <a class="feat-row" data-cursor data-img="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Lion%27s_Head_at_Dusk_%28Unsplash%29.jpg/960px-Lion%27s_Head_at_Dusk_%28Unsplash%29.jpg">
+        <div class="flood"></div>
+        <span class="idx">03</span>
+        <h3>Live Map</h3>
+        <p>Every gem pinned on a themed map — with a nudge when you're 500m from greatness.</p>
+        <span class="arrow">→</span>
+      </a>
+      <a class="feat-row" data-cursor data-img="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Simon%E2%80%99s_Town_%28ZA%29%2C_Boulders_Beach%2C_Penguin_Colony_--_2024_--_3401.jpg/960px-Simon%E2%80%99s_Town_%28ZA%29%2C_Boulders_Beach%2C_Penguin_Colony_--_2024_--_3401.jpg">
+        <div class="flood"></div>
+        <span class="idx">04</span>
+        <h3>Budget Explorer</h3>
+        <span class="tag-pill">Under R200</span>
+        <p>The best of Cape Town for less than a movie ticket — free hikes, cheap eats, big views.</p>
+        <span class="arrow">→</span>
+      </a>
+      <a class="feat-row" data-cursor data-img="https://images.unsplash.com/photo-1576485375217-d6a95e34d043?w=900&q=75">
+        <div class="flood"></div>
+        <span class="idx">05</span>
+        <h3>Book Experiences</h3>
+        <p>Paragliding, sunset kayaks, wine trams — book and pay securely in-app with PayFast.</p>
+        <span class="arrow">→</span>
+      </a>
+      <a class="feat-row" data-cursor data-img="https://images.unsplash.com/photo-1563656157432-67560011e209?w=900&q=75">
+        <div class="flood"></div>
+        <span class="idx">06</span>
+        <h3>Social Hub</h3>
+        <p>Share your finds, tag the location, see where the city is heading this weekend.</p>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </section>
+  <div id="feat-preview" aria-hidden="true"></div>
+
+  <!-- ── HORIZONTAL GALLERY ── -->
+  <section class="hscroll" id="spotlight">
+    <div class="head wrap">
+      <p class="section-tag">Spotlight</p>
+      <h2 class="section-title">
+        <span class="row"><span>One city.</span></span>
+        <span class="row"><span><em>Endless side quests.</em></span></span>
+      </h2>
+    </div>
+    <div class="htrack" id="htrack">
+      <div class="hcard">
+        <div class="im"><img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1100&q=80" alt="Aerial Cape Town with Table Mountain" /></div>
+        <span class="num">01 / 06</span>
+        <div class="label"><div class="place">Table Mountain</div><div class="meta">◆ The classic quest · Cableway or hike</div></div>
+      </div>
+      <div class="hcard">
+        <div class="im"><img src="https://images.unsplash.com/photo-1576485375217-d6a95e34d043?w=1100&q=80" alt="Camps Bay at golden hour" /></div>
+        <span class="num">02 / 06</span>
+        <div class="label"><div class="place">Camps Bay</div><div class="meta">◆ Sunset gold · Free</div></div>
+      </div>
+      <div class="hcard">
+        <div class="im"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Bo-Kaap_colourful_houses_%2830114819980%29.jpg/960px-Bo-Kaap_colourful_houses_%2830114819980%29.jpg" alt="Colourful Bo-Kaap houses" /></div>
+        <span class="num">03 / 06</span>
+        <div class="label"><div class="place">Bo-Kaap</div><div class="meta">◆ Colour + koesisters · Under R200</div></div>
+      </div>
+      <div class="hcard">
+        <div class="im"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Simon%E2%80%99s_Town_%28ZA%29%2C_Boulders_Beach%2C_Penguin_Colony_--_2024_--_3401.jpg/960px-Simon%E2%80%99s_Town_%28ZA%29%2C_Boulders_Beach%2C_Penguin_Colony_--_2024_--_3401.jpg" alt="Penguins at Boulders Beach" /></div>
+        <span class="num">04 / 06</span>
+        <div class="label"><div class="place">Boulders Beach</div><div class="meta">◆ Penguin colony · Bookable</div></div>
+      </div>
+      <div class="hcard">
+        <div class="im"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Lion%27s_Head_at_Dusk_%28Unsplash%29.jpg/960px-Lion%27s_Head_at_Dusk_%28Unsplash%29.jpg" alt="Lion's Head at dusk above the city lights" /></div>
+        <span class="num">05 / 06</span>
+        <div class="label"><div class="place">Lion's Head</div><div class="meta">◆ Full-moon hike · Free</div></div>
+      </div>
+      <div class="hcard">
+        <div class="im"><img src="https://images.unsplash.com/photo-1563656157432-67560011e209?w=1100&q=80" alt="Table Mountain from Bloubergstrand at sunset" /></div>
+        <span class="num">06 / 06</span>
+        <div class="label"><div class="place">Bloubergstrand</div><div class="meta">◆ The postcard view · Kitesurf capital</div></div>
+      </div>
+      <div class="hcard cta-card">
+        <div class="big">And <em>100+</em> more<br />in the app</div>
+        <a class="btn" href="#download" data-cursor><i></i><span>Start exploring</span></a>
       </div>
     </div>
   </section>
 
-  <!-- ── SPOTLIGHT GALLERY ── -->
-  <section id="spotlight" style="background: var(--surface-alt);">
+  <!-- ── GREEN R200 BLOCK ── -->
+  <section class="green" id="under-r200">
     <div class="wrap">
-      <p class="section-tag reveal">Spotlight</p>
-      <h2 class="section-title reveal">One city.<br /><em>Endless side quests.</em></h2>
-      <div class="gallery">
-        <div class="shot wide reveal">
-          <img src="https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=1400&q=80" alt="Aerial view of Cape Town with Table Mountain and the stadium" loading="lazy" />
-          <div class="label"><div class="place">Table Mountain</div><div class="meta">◆ The classic quest · Cableway or hike</div></div>
-        </div>
-        <div class="shot reveal">
-          <img src="https://images.unsplash.com/photo-1576485375217-d6a95e34d043?w=900&q=80" alt="Camps Bay beach with the Twelve Apostles mountains at golden hour" loading="lazy" />
-          <div class="label"><div class="place">Camps Bay</div><div class="meta">◆ Sunset gold · Free</div></div>
-        </div>
-        <div class="shot reveal">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Bo-Kaap_colourful_houses_%2830114819980%29.jpg/960px-Bo-Kaap_colourful_houses_%2830114819980%29.jpg" alt="The colourful houses of Bo-Kaap, Cape Town" loading="lazy" />
-          <div class="label"><div class="place">Bo-Kaap</div><div class="meta">◆ Colour + koesisters · Under R200</div></div>
-        </div>
-        <div class="shot reveal">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Simon%E2%80%99s_Town_%28ZA%29%2C_Boulders_Beach%2C_Penguin_Colony_--_2024_--_3401.jpg/960px-Simon%E2%80%99s_Town_%28ZA%29%2C_Boulders_Beach%2C_Penguin_Colony_--_2024_--_3401.jpg" alt="African penguins on the rocks at Boulders Beach, Simon's Town" loading="lazy" />
-          <div class="label"><div class="place">Boulders Beach</div><div class="meta">◆ Penguin colony · Bookable</div></div>
-        </div>
-        <div class="shot reveal">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Lion%27s_Head_at_Dusk_%28Unsplash%29.jpg/960px-Lion%27s_Head_at_Dusk_%28Unsplash%29.jpg" alt="Lion's Head and the Cape Town city bowl at dusk" loading="lazy" />
-          <div class="label"><div class="place">Lion's Head</div><div class="meta">◆ Full-moon hike · Free</div></div>
-        </div>
-        <div class="shot wide reveal">
-          <img src="https://images.unsplash.com/photo-1563656157432-67560011e209?w=1400&q=80" alt="Table Mountain across the bay at sunset from Bloubergstrand" loading="lazy" />
-          <div class="label"><div class="place">Bloubergstrand</div><div class="meta">◆ The postcard view · Kitesurf capital</div></div>
-        </div>
+      <p class="section-tag">Budget Explorer</p>
+      <h2 class="section-title">
+        <span class="row"><span>Big city energy.</span></span>
+        <span class="row"><span><em>Small change.</em></span></span>
+      </h2>
+      <p class="lede">Cape Town doesn't have to cost a thing. The Budget Explorer curates the city's best free and under-R200 quests, refreshed daily.</p>
+      <div class="price-grid">
+        <div class="ticket"><span class="price">FREE</span><span class="what">Platteklip Gorge hike</span><span class="how">Straight up Table Mountain — bring water, earn the view.</span></div>
+        <div class="ticket"><span class="price">R0</span><span class="what">Camps Bay sunset</span><span class="how">The world's cheapest million-dollar view.</span></div>
+        <div class="ticket"><span class="price">R150</span><span class="what">Bo-Kaap walking tour</span><span class="how">Colour, history and a koesister to finish.</span></div>
+        <div class="ticket"><span class="price">R190</span><span class="what">Boulders Beach penguins</span><span class="how">Conservation fee. Penguins: judgemental, adorable.</span></div>
       </div>
     </div>
+    <div class="marquee on-green" aria-hidden="true"><div class="marquee-track" id="marquee2"></div></div>
   </section>
 
   <!-- ── THE APP ── -->
-  <section id="app" class="app-section">
-    <div class="wrap">
-      <div class="phone reveal" aria-hidden="true">
-        <div class="screen">
-          <div class="s-tag">Good morning</div>
-          <div class="s-title">Explore Cape Town</div>
-          <div class="widget">
-            <div class="row">
-              <div><small>CAPE TOWN · CLEAR SKIES</small><div class="temp">24°</div></div>
-              <div style="font-size:1.8rem">☀️</div>
+  <section class="app-section" id="app">
+    <div class="wrap app-grid">
+      <div class="phone-wrap">
+        <div class="phone" id="phone" aria-hidden="true">
+          <div class="screen">
+            <div class="s-tag">Good morning</div>
+            <div class="s-title">Explore Cape Town</div>
+            <div class="widget">
+              <div class="row">
+                <div><small>CAPE TOWN · CLEAR SKIES</small><div class="temp">24°</div></div>
+                <div style="font-size:1.8rem">☀️</div>
+              </div>
             </div>
+            <div class="chips">
+              <span class="chip on">All</span><span class="chip">Nature</span><span class="chip">Food</span>
+              <span class="chip">Beaches</span><span class="chip on">Under R200</span>
+            </div>
+            <div class="mini-card"><span class="emoji">⛰️</span><div><div class="n">Platteklip Gorge Hike</div><div class="c">FREE · HIDDEN GEM</div></div></div>
+            <div class="mini-card"><span class="emoji">🐧</span><div><div class="n">Boulders Beach Penguins</div><div class="c">R190 · BOOKABLE</div></div></div>
+            <div class="mini-card"><span class="emoji">🌈</span><div><div class="n">Bo-Kaap Walking Tour</div><div class="c">R150 · CULTURE</div></div></div>
+            <div class="ai-banner">✦ Ask AI to plan your perfect day →</div>
           </div>
-          <div class="chips">
-            <span class="chip on">All</span><span class="chip">Nature</span><span class="chip">Food</span>
-            <span class="chip">Beaches</span><span class="chip on">Under R200</span>
-          </div>
-          <div class="mini-card"><span class="emoji">⛰️</span><div><div class="n">Platteklip Gorge Hike</div><div class="c">FREE · HIDDEN GEM</div></div></div>
-          <div class="mini-card"><span class="emoji">🐧</span><div><div class="n">Boulders Beach Penguins</div><div class="c">R190 · BOOKABLE</div></div></div>
-          <div class="mini-card"><span class="emoji">🌈</span><div><div class="n">Bo-Kaap Walking Tour</div><div class="c">R150 · CULTURE</div></div></div>
-          <div class="ai-banner">✦ Ask AI to plan your perfect day →</div>
         </div>
       </div>
       <div class="app-copy">
-        <p class="section-tag reveal">The App</p>
-        <h2 class="section-title reveal">Your pocket<br /><em>tour guide</em></h2>
-        <div class="feature-line reveal"><span class="tick">◆</span><div><b>Dark & light themes</b><span>Navy nights, bright beach days — the app matches your mood.</span></div></div>
-        <div class="feature-line reveal"><span class="tick">◆</span><div><b>Works on the go</b><span>Location-aware nudges when you're near a saved gem.</span></div></div>
-        <div class="feature-line reveal"><span class="tick">◆</span><div><b>Real bookings, real payments</b><span>Secure PayFast checkout and instant email confirmations.</span></div></div>
-        <div class="feature-line reveal"><span class="tick">◆</span><div><b>Made in Cape Town</b><span>Curated by people who argue about the city's best gatsby.</span></div></div>
+        <p class="section-tag">The App</p>
+        <h2 class="section-title">
+          <span class="row"><span>Your pocket</span></span>
+          <span class="row"><span><em>tour guide</em></span></span>
+        </h2>
+        <div class="feature-line"><span class="tick">◆</span><div><b>Dark & light themes</b><span>Navy nights, bright beach days — the app matches your mood.</span></div></div>
+        <div class="feature-line"><span class="tick">◆</span><div><b>Works on the go</b><span>Location-aware nudges when you're near a saved gem.</span></div></div>
+        <div class="feature-line"><span class="tick">◆</span><div><b>Real bookings, real payments</b><span>Secure PayFast checkout and instant email confirmations.</span></div></div>
+        <div class="feature-line"><span class="tick">◆</span><div><b>Made in Cape Town</b><span>Curated by people who argue about the city's best gatsby.</span></div></div>
       </div>
     </div>
   </section>
 
   <!-- ── STATS ── -->
-  <section style="padding-top: 0;">
+  <section class="stats-section">
     <div class="wrap">
       <div class="stats">
-        <div class="stat reveal"><div class="num" data-count="100">0</div><div class="lbl">Curated places</div></div>
-        <div class="stat reveal"><div class="num" data-count="40">0</div><div class="lbl">Under-R200 quests</div></div>
-        <div class="stat reveal"><div class="num" data-count="6">0</div><div class="lbl">Bookable experiences</div></div>
-        <div class="stat reveal"><div class="num" data-count="1" data-suffix="">0</div><div class="lbl">Mother City</div></div>
+        <div class="stat"><div class="num" data-count="100">0</div><div class="lbl">Curated places</div></div>
+        <div class="stat"><div class="num" data-count="40">0</div><div class="lbl">Under-R200 quests</div></div>
+        <div class="stat"><div class="num" data-count="6">0</div><div class="lbl">Bookable experiences</div></div>
+        <div class="stat"><div class="num" data-count="1" data-suffix="">0</div><div class="lbl">Mother City</div></div>
       </div>
     </div>
   </section>
 
   <!-- ── FOOTER ── -->
   <footer id="download">
-    <div class="giant reveal">See you in<br />Cape Town <span class="wave">👋</span></div>
-    <p class="sub reveal">Free to download. Priceless to explore.</p>
-    <div class="cta-row reveal">
-      <a class="btn" href="#top">📱 App Store</a>
-      <a class="btn" href="#top">🤖 Google Play</a>
+    <div class="giant">
+      <span class="row"><span>See you in</span></span>
+      <span class="row"><span>Cape Town <span class="wave">👋</span></span></span>
     </div>
-    <div class="marquee" aria-hidden="true" style="border-radius: 18px; margin-bottom: 3rem;">
-      <div class="marquee-track" id="marquee2"></div>
+    <p class="sub">Free to download. Priceless to explore.</p>
+    <div class="cta-row">
+      <a class="btn magnetic" href="#top" data-cursor><i></i><span>📱 App Store</span></a>
+      <a class="btn ghost magnetic" href="#top" data-cursor><i></i><span>🤖 Google Play</span></a>
     </div>
+    <div class="marquee" aria-hidden="true" style="border-radius: 18px;"><div class="marquee-track" id="marquee3"></div></div>
     <div class="fine">
       <span>© 2026 CapeQuest. Made with ◆ in the Mother City.</span>
       <span>
-        <a href="https://unsplash.com" target="_blank" rel="noopener">Photos: Unsplash</a> ·
-        <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a>
+        <a href="https://unsplash.com" target="_blank" rel="noopener" data-cursor>Photos: Unsplash</a> ·
+        <a href="https://commons.wikimedia.org" target="_blank" rel="noopener" data-cursor>Wikimedia Commons</a>
       </span>
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
   <script>
-    // Marquee content — duplicated once so the 50% translate loops seamlessly
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const hasGsap = typeof gsap !== "undefined";
+
+    /* ── Marquee content ── */
     const places = ["Table Mountain", "Bo-Kaap", "Camps Bay", "Boulders Beach", "Lion's Head", "V&A Waterfront", "Kirstenbosch", "Muizenberg", "Chapman's Peak", "Signal Hill"];
-    const trackHTML = places.map((p, i) =>
-      `<span class="${i % 2 ? "alt" : ""}">${p}</span><span class="dot">◆</span>`
-    ).join("");
-    for (const id of ["marquee1", "marquee2"]) {
-      document.getElementById(id).innerHTML = trackHTML + trackHTML;
-    }
+    const budget = ["Free sunsets", "R150 walking tours", "R190 penguins", "Free hikes", "R95 gatsby", "R60 koesisters", "Free beaches", "R180 museums"];
+    const track = (list) => list.map((p, i) => `<span class="${i % 2 ? "alt" : ""}">${p}</span><span class="dot">◆</span>`).join("");
+    const fill = (id, list) => { const el = document.getElementById(id); if (el) el.innerHTML = track(list) + track(list); };
+    fill("marquee1", places); fill("marquee2", budget); fill("marquee3", places);
 
-    // Scroll reveal
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-      }
-    }, { threshold: 0.15 });
-    document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    /* ── Preloader word ── */
+    const word = "CAPEQUEST";
+    document.getElementById("loader-word").innerHTML =
+      `<span class="gem">◆</span>` + [...word].map((c) => `<span>${c}</span>`).join("");
 
-    // Animated counters
-    const counterIO = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        counterIO.unobserve(e.target);
-        const el = e.target;
+    /* ── Fallback: no GSAP or reduced motion → show everything, kill loader ── */
+    if (!hasGsap || reduceMotion) {
+      document.getElementById("loader").style.display = "none";
+      document.querySelector(".zoom-media").style.clipPath = "inset(0 0 0 0)";
+      document.querySelector(".zoom-media .tint").style.opacity = "1";
+      document.querySelectorAll(".num[data-count]").forEach((el) => {
+        el.textContent = el.dataset.count + (el.dataset.suffix ?? "+");
+      });
+    } else {
+      gsap.registerPlugin(ScrollTrigger);
+
+      /* ── Lenis smooth scroll, driven by GSAP's ticker ── */
+      const lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1.05 });
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((time) => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+      lenis.stop();
+
+      // Anchor links → lenis smooth scroll
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener("click", (e) => {
+          const target = document.querySelector(a.getAttribute("href"));
+          if (!target) return;
+          e.preventDefault();
+          lenis.scrollTo(target, { offset: 0, duration: 1.6 });
+        });
+      });
+
+      /* ── Preloader timeline ── */
+      const letters = document.querySelectorAll("#loader-word span");
+      const countEl = document.getElementById("loader-count");
+      const counter = { v: 0 };
+      const intro = gsap.timeline({
+        onComplete() {
+          gsap.set("#loader", { display: "none" });
+          lenis.start();
+        },
+      });
+      intro
+        .from(letters, { yPercent: 110, stagger: 0.05, duration: 0.7, ease: "power4.out" })
+        .to(counter, {
+          v: 100, duration: 1.1, ease: "power2.inOut",
+          onUpdate: () => (countEl.textContent = String(Math.round(counter.v)).padStart(3, "0")),
+        }, "<")
+        .to(letters, { yPercent: -110, stagger: 0.035, duration: 0.55, ease: "power4.in" }, "+=0.15")
+        .to(countEl, { opacity: 0, duration: 0.3 }, "<")
+        .to("#loader", { yPercent: -100, duration: 0.85, ease: "power4.inOut" }, "-=0.1")
+        // Hero entrance
+        .from("#ht-cape", { yPercent: 115, duration: 1, ease: "power4.out" }, "-=0.45")
+        .from("#ht-quest", { yPercent: 115, duration: 1, ease: "power4.out" }, "-=0.85")
+        .from(".hero-kicker", { opacity: 0, y: 24, duration: 0.7, ease: "power3.out" }, "-=0.6")
+        .from(".hero-sub", { opacity: 0, y: 24, duration: 0.7, ease: "power3.out" }, "-=0.55")
+        .from(".scroll-hint", { opacity: 0, duration: 0.6 }, "-=0.4")
+        .from(".zoom-media", { scale: 0.92, opacity: 0, duration: 1.1, ease: "power3.out" }, "-=1.1");
+
+      // If the tab is hidden (rAF throttled), skip straight to the loaded state
+      // so users opening the site in a background tab never see a stuck loader.
+      const skipIntroIfHidden = () => { if (document.hidden) intro.progress(1); };
+      skipIntroIfHidden();
+      document.addEventListener("visibilitychange", skipIntroIfHidden, { once: true });
+
+      // Debug handle
+      window.cq = { intro, lenis, gsap, ScrollTrigger };
+
+      /* ── Hero: window zooms to fullscreen while type splits apart ── */
+      gsap.timeline({
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "+=130%", scrub: true, pin: true },
+      })
+        .to(".zoom-media", { clipPath: "inset(0% 0% 0% 0% round 0px)", ease: "none" }, 0)
+        .to(".zoom-media img", { scale: 1, ease: "none" }, 0)
+        .to(".zoom-media .tint", { opacity: 1, ease: "none" }, 0)
+        .to("#ht-cape", { xPercent: -16, ease: "none" }, 0)
+        .to("#ht-quest", { xPercent: 16, ease: "none" }, 0)
+        .to(".hero-kicker", { y: -60, opacity: 0, ease: "none" }, 0)
+        .to(".hero-sub", { y: 60, opacity: 0, ease: "none" }, 0)
+        .to(".scroll-hint", { opacity: 0, ease: "none" }, 0);
+
+      /* ── Marquees drift with scroll direction ── */
+      document.querySelectorAll(".marquee-track").forEach((el) => {
+        const w = () => el.scrollWidth / 2;
+        gsap.to(el, { x: () => -w(), duration: 26, ease: "none", repeat: -1 });
+      });
+
+      /* ── Section title line reveals ── */
+      document.querySelectorAll(".section-title .row > span, footer .giant .row > span").forEach((el) => {
+        gsap.from(el, {
+          yPercent: 115, duration: 1.1, ease: "power4.out",
+          scrollTrigger: { trigger: el, start: "top 88%" },
+        });
+      });
+      document.querySelectorAll(".section-tag, .lede, footer .sub, footer .cta-row").forEach((el) => {
+        gsap.from(el, {
+          opacity: 0, y: 28, duration: 0.9, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 90%" },
+        });
+      });
+
+      /* ── Feature rows: stagger in + cursor-follow preview ── */
+      gsap.from(".feat-row", {
+        opacity: 0, y: 60, stagger: 0.08, duration: 0.9, ease: "power3.out",
+        scrollTrigger: { trigger: ".feat-list", start: "top 82%" },
+      });
+
+      const preview = document.getElementById("feat-preview");
+      const pv = {
+        x: gsap.quickTo(preview, "left", { duration: 0.5, ease: "power3" }),
+        y: gsap.quickTo(preview, "top", { duration: 0.5, ease: "power3" }),
+      };
+      const imgCache = new Map();
+      document.querySelectorAll(".feat-row").forEach((row) => {
+        row.addEventListener("mouseenter", () => {
+          const src = row.dataset.img;
+          let img = imgCache.get(src);
+          if (!img) {
+            img = document.createElement("img");
+            img.src = src;
+            preview.appendChild(img);
+            imgCache.set(src, img);
+          }
+          preview.querySelectorAll("img").forEach((i) => i.classList.remove("show"));
+          img.classList.add("show");
+          gsap.to(preview, { opacity: 1, scale: 1, duration: 0.4, ease: "power3.out" });
+        });
+        row.addEventListener("mouseleave", () => {
+          gsap.to(preview, { opacity: 0, scale: 0.85, duration: 0.35, ease: "power3.in" });
+        });
+      });
+      window.addEventListener("mousemove", (e) => { pv.x(e.clientX); pv.y(e.clientY); });
+
+      /* ── Horizontal gallery (pinned) ── */
+      const htrack = document.getElementById("htrack");
+      const hscrollTl = gsap.to(htrack, {
+        x: () => -(htrack.scrollWidth - window.innerWidth + 40),
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".hscroll",
+          start: "top top",
+          end: () => "+=" + (htrack.scrollWidth - window.innerWidth + 40),
+          scrub: 1,
+          pin: true,
+          invalidateOnRefresh: true,
+        },
+      });
+      // Parallax inside each card
+      document.querySelectorAll(".hcard .im img").forEach((img) => {
+        gsap.fromTo(img, { xPercent: -6 }, {
+          xPercent: 6, ease: "none",
+          scrollTrigger: { containerAnimation: hscrollTl, trigger: img.closest(".hcard"), start: "left right", end: "right left", scrub: true },
+        });
+      });
+
+      /* ── Green section: tickets pop in ── */
+      gsap.from(".ticket", {
+        opacity: 0, y: 70, rotate: 2, stagger: 0.09, duration: 0.9, ease: "back.out(1.4)",
+        scrollTrigger: { trigger: ".price-grid", start: "top 85%" },
+      });
+
+      /* ── Phone: floats + untilts as you scroll ── */
+      gsap.fromTo("#phone",
+        { rotate: 7, y: 90, rotateY: -14 },
+        {
+          rotate: -2, y: -50, rotateY: 8, ease: "none",
+          scrollTrigger: { trigger: ".app-section", start: "top bottom", end: "bottom top", scrub: 1.2 },
+        }
+      );
+      gsap.from(".feature-line", {
+        opacity: 0, x: 50, stagger: 0.1, duration: 0.8, ease: "power3.out",
+        scrollTrigger: { trigger: ".app-copy", start: "top 75%" },
+      });
+
+      /* ── Stats counters ── */
+      document.querySelectorAll(".num[data-count]").forEach((el) => {
         const target = +el.dataset.count;
-        const start = performance.now();
-        const dur = 1400;
-        (function tick(now) {
-          const t = Math.min((now - start) / dur, 1);
-          const suffix = el.dataset.suffix ?? "+";
-          el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3))) + suffix;
-          if (t < 1) requestAnimationFrame(tick);
-        })(start);
-      }
-    }, { threshold: 0.5 });
-    document.querySelectorAll(".num").forEach((el) => counterIO.observe(el));
+        const suffix = el.dataset.suffix ?? "+";
+        const state = { v: 0 };
+        gsap.from(el.closest(".stat"), {
+          opacity: 0, y: 50, duration: 0.8, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 88%" },
+        });
+        gsap.to(state, {
+          v: target, duration: 1.6, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 88%" },
+          onUpdate: () => (el.textContent = Math.round(state.v) + suffix),
+        });
+      });
+
+      /* ── Custom cursor ── */
+      const dot = document.getElementById("cursor");
+      const ring = document.getElementById("cursor-ring");
+      const dx = gsap.quickTo(dot, "x", { duration: 0.12, ease: "power3" });
+      const dy = gsap.quickTo(dot, "y", { duration: 0.12, ease: "power3" });
+      const rx = gsap.quickTo(ring, "x", { duration: 0.45, ease: "power3" });
+      const ry = gsap.quickTo(ring, "y", { duration: 0.45, ease: "power3" });
+      window.addEventListener("mousemove", (e) => {
+        dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY);
+      });
+      document.querySelectorAll("[data-cursor]").forEach((el) => {
+        el.addEventListener("mouseenter", () => document.body.classList.add("cursor-grow"));
+        el.addEventListener("mouseleave", () => document.body.classList.remove("cursor-grow"));
+      });
+
+      /* ── Magnetic buttons ── */
+      document.querySelectorAll(".btn.magnetic").forEach((btn) => {
+        const bx = gsap.quickTo(btn, "x", { duration: 0.4, ease: "power3" });
+        const by = gsap.quickTo(btn, "y", { duration: 0.4, ease: "power3" });
+        btn.addEventListener("mousemove", (e) => {
+          const r = btn.getBoundingClientRect();
+          bx((e.clientX - r.left - r.width / 2) * 0.35);
+          by((e.clientY - r.top - r.height / 2) * 0.35);
+        });
+        btn.addEventListener("mouseleave", () => { bx(0); by(0); });
+      });
+
+      /* ── Nav hides on scroll down, returns on scroll up ── */
+      let lastY = 0;
+      ScrollTrigger.create({
+        start: 0,
+        end: "max",
+        onUpdate(self) {
+          const y = self.scroll();
+          gsap.to("#nav", { yPercent: y > lastY && y > 300 ? -110 : 0, duration: 0.4, ease: "power3.out" });
+          lastY = y;
+        },
+      });
+    }
   </script>
 </body>
 </html>
